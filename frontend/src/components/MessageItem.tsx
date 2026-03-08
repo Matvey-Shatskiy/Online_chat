@@ -1,76 +1,91 @@
 import React, { memo } from 'react';
 import {
-  ListItem,
-  ListItemText,
   Avatar,
   Box,
   Typography,
 } from '@mui/material';
 import { Message } from '../types/types';
-import { formatTime, getImageUrl } from '../services/utils';
-import { useAuth } from '../context/AuthContext';
+import { formatTime } from '../services/utils';
 
 interface MessageItemProps {
   message: Message;
   isOwner: boolean;
-  currentChatPartnerImage: string;
 }
 
-const MessageItem: React.FC<MessageItemProps> = memo(({ message, isOwner, currentChatPartnerImage }) => {
-  const user = useAuth();
-  const userImage = getImageUrl(user.user?.image || '');
-  const partnerImage = getImageUrl(currentChatPartnerImage);
+const MessageItem: React.FC<MessageItemProps> = memo(({ message, isOwner }) => {
   return (
-    <ListItem
-      sx={{
-        display: 'flex',
-        justifyContent: isOwner ? 'flex-end' : 'flex-start',
-        alignItems: isOwner ? 'flex-end' : 'flex-start',
-      }}
-    >
-      {!isOwner && (
-        <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }} src={partnerImage}>
-          {message.senderUserName.charAt(0).toUpperCase()}
-        </Avatar>
-      )}
-      <ListItemText
-        primary={
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: isOwner ? 'flex-end' : 'flex-start', 
-            alignItems: 'center', 
-            gap: 1 
+    <Box sx={{ 
+      width: '100%', 
+      display: 'flex', 
+      justifyContent: isOwner ? 'flex-end' : 'flex-start', 
+      mb: 0.5 
+    }}>
+      <Box
+        sx={{
+          maxWidth: '80%',
+          width: 'fit-content',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: 2,
+            backgroundColor: isOwner ? '#c9b6d27e' : '#bbdde983',
+            width: 'fit-content',
+            maxWidth: '100%',
+            gap: 0.25,
+            padding: '8px 12px',
+          }}
+        >
+          <Box sx={{
+            display: 'flex',
+            justifyContent: isOwner ? 'flex-end' : 'flex-start',
+            alignItems: 'center',
+            gap: 1,
+            flexWrap: 'wrap', 
           }}>
-            <Typography component="span" variant="subtitle2" color="primary">
+            <Typography 
+              component="span" 
+              variant="subtitle2" 
+              color="#3c4f6f"
+              fontWeight='700'
+              sx={{
+                whiteSpace: 'nowrap',
+              }}
+            >
               {message.senderUserName}
             </Typography>
-            <Typography component="span" variant="caption" color="text.secondary">
+            <Typography 
+              component="span" 
+              variant="caption" 
+              color="#3c4f6f"
+              fontWeight='100'
+              fontSize='10px'
+              sx={{
+                whiteSpace: 'nowrap', 
+              }}
+            >
               {formatTime(message.createdAt)}
             </Typography>
           </Box>
-        }
-        secondary={
+
           <Typography
-            component="span"
             variant="body2"
             color="text.primary"
-            sx={{ 
+            sx={{
               wordBreak: 'break-word', 
-              display: 'flex', 
-              justifyContent: isOwner ? 'flex-end' : 'flex-start', 
-              alignItems: 'center' 
+              overflowWrap: 'break-word',
+              whiteSpace: 'pre-wrap', 
+              maxWidth: '100%',
+              textAlign: isOwner ? 'right' : 'left', 
             }}
           >
             {message.message}
           </Typography>
-        }
-      />
-      {isOwner && (
-        <Avatar sx={{ ml: 2, bgcolor: 'primary.main' }} src={userImage}>
-          {message.senderUserName.charAt(0).toUpperCase()}
-        </Avatar>
-      )}
-    </ListItem>
+        </Box>
+      </Box>
+    </Box>
   );
 });
 

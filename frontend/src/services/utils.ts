@@ -1,11 +1,11 @@
 export const formatTime = (dateString: string | undefined) => {
-  if (!dateString) return 'давно';
+  if (!dateString) return 'recently';
   try {
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return 'давно';
+    if (isNaN(date.getTime())) return 'recently';
     return date.toLocaleTimeString([], { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' });
   } catch {
-    return 'давно';
+    return 'recently';
   }
 };
 

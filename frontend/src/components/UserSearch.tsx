@@ -1,24 +1,21 @@
 import React, { memo } from 'react';
 import {
-  Paper,
   InputBase,
-  IconButton,
   Box,
-  alpha,
+  IconButton,
 } from '@mui/material';
+import { ReactComponent as SearchIcon } from '../assets/search.svg';
 
 interface UserSearchProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
   onSearch: () => void;
-  isLoading: boolean;
 }
 
 const UserSearch: React.FC<UserSearchProps> = memo(({
   searchQuery,
   onSearchChange,
   onSearch,
-  isLoading,
 }) => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -28,31 +25,32 @@ const UserSearch: React.FC<UserSearchProps> = memo(({
 
   return (
     <Box sx={{ mb: 2 }}>
-      <Paper
+      <Box
         component="form"
         sx={{
-          p: '2px 4px',
+          p: '4px',
+          pr: 2,
           display: 'flex',
           alignItems: 'center',
-          backgroundColor: alpha('#fff', 0.15),
+          flexDirection: 'row',
+          justifyContent: 'flex-start',
+          gap: 0,
         }}
-        elevation={0}
       >
-        <InputBase
-          sx={{ ml: 1, flex: 1 }}
-          placeholder="Поиск пользователей..."
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          onKeyPress={handleKeyPress}
-        />
-        <IconButton 
-          type="button" 
-          sx={{ p: '10px' }} 
-          onClick={onSearch}
-          disabled={isLoading}
-        >
-        </IconButton>
-      </Paper>
+        <Box>
+          <IconButton>
+            <SearchIcon style={{ width: 24, height: 24, margin: 8 }} />
+          </IconButton>
+        </Box>
+        <Box className='search-input'>
+          <InputBase
+            placeholder="Search users"
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            onKeyPress={handleKeyPress}
+          />
+        </Box>
+      </Box>
     </Box>
   );
 });

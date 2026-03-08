@@ -2,12 +2,10 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import {
   Container,
   Box,
-  Card,
-  CardContent,
   Typography,
-  Grid,
   Chip,
   CircularProgress,
+  Avatar,
 } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import { Message, User } from '../types/types';
@@ -16,17 +14,16 @@ import UserList from '../components/UserList';
 import UserSearch from '../components/UserSearch';
 import MessageList from '../components/MessageList';
 import MessageInput from '../components/MessageInput';
-import ConnectionStatus from '../components/ConnectionStatus';
 import { useNavigate, useParams } from 'react-router-dom';
 import { chatService } from '../services/chatService';
-import { formatTime } from '../services/utils';
+import { formatTime, getImageUrl } from '../services/utils';
 
 const Chat: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { chatId } = useParams<{ chatId: string }>();
   const chatIdRef = useRef<string | undefined>(chatId);
-  
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [users, setUsers] = useState<User[]>([]);
@@ -36,16 +33,16 @@ const Chat: React.FC = () => {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [currentChatPartner, setCurrentChatPartner] = useState<User | null>(null);
   const memoizedFilteredUsers = useMemo(() => filteredUsers, [filteredUsers]);
-  
+
   useEffect(() => {
     chatIdRef.current = chatId;
   }, [chatId]);
-  
+
   useEffect(() => {
     setMessages([]);
     setCurrentChatPartner(null);
   }, [chatId]);
-  
+
   useEffect(() => {
     if (!user || !chatId) return;
 
@@ -54,7 +51,7 @@ const Chat: React.FC = () => {
       try {
         const history = await chatService.getPrivateChatHistory(chatId, user.uuid);
         setMessages(history);
-        
+
         const partner = users.find(u => u.uuid === chatId);
         setCurrentChatPartner(partner || null);
       } catch (error) {
@@ -69,32 +66,32 @@ const Chat: React.FC = () => {
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {  
+      if (e.key === 'Escape') {
         navigate('/chat');
       }
     };
-    
+
     document.addEventListener('keydown', handleKeyPress);
-    
+
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
   }, [navigate]);
 
-  const handleMessage = useCallback((message: Message) => {    
+  const handleMessage = useCallback((message: Message) => {
     const currentChatId = chatIdRef.current;
-    
+
     if (currentChatId && (message.senderUuid === currentChatId || message.receiverUuid === currentChatId)) {
       setMessages(prev => [...prev, message]);
     }
-    
+
     const updatedUserInfo = {
       lastMessage: message.message,
       lastMessageTime: message.createdAt,
       lastMessageUuid: message.senderUuid,
     };
-    
-    setFilteredUsers(prev => prev.map(u => 
+
+    setFilteredUsers(prev => prev.map(u =>
       u.uuid === message.senderUuid || u.uuid === message.receiverUuid ? { ...u, ...updatedUserInfo } : u
     ));
   }, []);
@@ -102,7 +99,7 @@ const Chat: React.FC = () => {
   const handleUsersUpdate = useCallback((usersList: User[]) => {
     setUsers(usersList);
     setFilteredUsers(usersList);
-    
+
     const currentChatId = chatIdRef.current;
     if (currentChatId) {
       const partner = usersList.find(u => u.uuid === currentChatId);
@@ -111,13 +108,13 @@ const Chat: React.FC = () => {
   }, []);
 
   const handleUserStatusUpdate = useCallback((uuid: string, isOnline: boolean) => {
-    setUsers(prev => prev.map(u => 
+    setUsers(prev => prev.map(u =>
       u.uuid === uuid ? { ...u, isOnline } : u
     ));
-    setFilteredUsers(prev => prev.map(u => 
+    setFilteredUsers(prev => prev.map(u =>
       u.uuid === uuid ? { ...u, isOnline } : u
     ));
-    
+
     if (currentChatPartner?.uuid === uuid) {
       setCurrentChatPartner(prev => prev ? { ...prev, isOnline } : null);
     }
@@ -135,7 +132,7 @@ const Chat: React.FC = () => {
       setFilteredUsers(users);
       return;
     }
-    
+
     setIsLoadingUsers(true);
     try {
       const response = await fetch(`http://192.168.1.16:8000/api/search?query=${query}`);
@@ -156,7 +153,7 @@ const Chat: React.FC = () => {
     const messageData = {
       type: 'private_message',
       message: newMessage.trim(),
-      receiverUuid: chatId, 
+      receiverUuid: chatId,
       senderUuid: user.uuid,
       senderUserName: user.userName,
       senderEmail: user.email,
@@ -169,89 +166,83 @@ const Chat: React.FC = () => {
   const handleUserClick = (selectedUser: User) => {
     navigate(`/chat/${selectedUser.uuid}`);
   };
-  
-  return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', gap: 2 }}>
-        <Box sx={{ flex: 1, width: '30%', height: '80%' }}>
-          <Card elevation={3}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Пользователи
-              </Typography>
-              
-              <UserSearch
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                onSearch={() => searchUsers(searchQuery)}
-                isLoading={isLoadingUsers}
-              />
 
-              <UserList
-                users={memoizedFilteredUsers}
-                searchQuery={searchQuery}
-                onUserClick={handleUserClick}
-                activeUserUuid={chatId}
-              />
-            </CardContent>
-          </Card>
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }} className="chat-container">
+      <Box sx={{ display: 'flex', gap: 2, width: '100%', height: '100%' }}>
+        <Box sx={{ flex: 1, width: '30%', height: '80%' }} className="users-list">
+          <Typography style={{ color: '#3c4f6f', fontSize: '24px', fontWeight: 'bold', margin: 16, marginBottom: 8 }}>
+            Chats
+          </Typography>
+
+          <UserSearch
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSearch={() => searchUsers(searchQuery)}
+          />
+
+          <UserList
+            users={memoizedFilteredUsers}
+            searchQuery={searchQuery}
+            onUserClick={handleUserClick}
+            activeUserUuid={chatId}
+          />
         </Box>
 
-        <Grid sx={{ flex: 2 }}>
-          <Card elevation={3}>
-            <CardContent>
-              <ConnectionStatus isConnected={isConnected} />
-              
-              {isLoadingHistory ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                  <CircularProgress />
-                </Box>
-              ) : chatId && currentChatPartner ? (
-                <>
-                  <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Typography variant="h6">
-                      Чат с {currentChatPartner.userName}
-                    </Typography>
-                    {currentChatPartner.isOnline ? ( 
-                      <Chip 
-                        label="Онлайн" 
-                        size="small"
-                        color="success"
-                        variant="outlined"
-                      />
-                    ) : (
-                      <Chip 
-                        label={'Был в сети ' + formatTime(currentChatPartner.lastSeen)} 
-                        size="small"
-                        variant="outlined"
-                      />
-                    )}
-                  </Box>
-                  
-                  <MessageList 
-                    messages={messages} 
-                    activeUserUuid={user?.uuid || ''}  
-                    currentChatPartner={currentChatPartner}
+        <Box sx={{ flex: 1, width: '70%', minHeight: '800px' }}>
+          {/* <ConnectionStatus isConnected={isConnected} /> */}
+
+          {isLoadingHistory ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : chatId && currentChatPartner ? (
+            <>
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}>
+                <Avatar sx={{ ml: 2, bgcolor: 'primary.main' }} src={getImageUrl(currentChatPartner.image || '')}>
+                  {currentChatPartner.userName.charAt(0).toUpperCase()}
+                </Avatar>
+                <Typography variant="h6">
+                  Chat with {currentChatPartner.userName}
+                </Typography>
+                {currentChatPartner.isOnline ? (
+                  <Chip
+                    label="Online"
+                    size="small"
+                    color="secondary"
+                    variant="outlined"
                   />
-                  
-                  <MessageInput
-                    value={newMessage}
-                    onChange={setNewMessage}
-                    onSend={handleSendMessage}
-                    disabled={!newMessage.trim() || !isConnected}
-                    isConnected={isConnected}
+                ) : (
+                  <Chip
+                    label={'Was online ' + formatTime(currentChatPartner.lastSeen)}
+                    size="small"
+                    variant="outlined"
                   />
-                </>
-              ) : (
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                  <Typography variant="h6">
-                    Выберите пользователя для начала чата
-                  </Typography>
-                </Box>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
+                )}
+              </Box>
+
+              <MessageList
+                messages={messages}
+                activeUserUuid={user?.uuid || ''}
+                currentChatPartner={currentChatPartner}
+              />
+
+              <MessageInput
+                value={newMessage}
+                onChange={setNewMessage}
+                onSend={handleSendMessage}
+                disabled={!newMessage.trim() || !isConnected}
+                isConnected={isConnected}
+              />
+            </>
+          ) : (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <Typography variant="h6">
+                Choose a user to start a conversation
+              </Typography>
+            </Box>
+          )}
+        </Box>
       </Box>
     </Container>
   );

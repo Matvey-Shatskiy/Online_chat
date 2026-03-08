@@ -5,7 +5,6 @@ import {
   Box,
   InputAdornment,
   IconButton,
-  Typography,
 } from '@mui/material';
 // import SendIcon from '@mui/icons-material/Send';
 
@@ -38,7 +37,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           fullWidth
           multiline
           maxRows={4}
-          placeholder="Введите сообщение..."
+          placeholder="Write a message..."
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyPress={handleKeyPress}
@@ -63,13 +62,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
           disabled={disabled || !isConnected}
           sx={{ minWidth: 100 }}
         >
-          Отправить
+          Send
         </Button>
       </Box>
-      
-      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-        Нажмите Enter для отправки, Shift+Enter для новой строки
-      </Typography>
     </>
   );
 };

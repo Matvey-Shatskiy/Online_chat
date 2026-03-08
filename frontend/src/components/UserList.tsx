@@ -1,11 +1,10 @@
 import React, { memo } from 'react';
 import {
-  Paper,
   List,
-  Divider,
   Typography,
   ListItem,
   ListItemText,
+  Box,
 } from '@mui/material';
 import { User } from '../types/types';
 import UserListItem from './UserListItem';
@@ -24,39 +23,41 @@ const UserList: React.FC<UserListProps> = memo(({
   activeUserUuid 
 }) => {
   return (
-    <Paper 
-      variant="outlined" 
+    <Box 
       sx={{ 
-        height: 300,
+        p: 2,
+        height: 800,
         overflow: 'auto',
-        backgroundColor: '#fafafa'
+        backgroundColor: '#f4f5f9', 
+        borderRadius: '12px',
+        pt: 0
       }}
     >
-      <List>
+      <List sx={{ p: 0 }}>
         {users.length === 0 ? (
           <ListItem>
             <ListItemText 
               primary={
                 <Typography color="text.secondary" align="center">
-                  {searchQuery ? 'Пользователи не найдены' : 'Нет пользователей'}
+                  {searchQuery ? 'Users not found' : 'No users'}
                 </Typography>
               }
             />
           </ListItem>
         ) : (
           users.map((user, index) => (
-            <React.Fragment key={user.uuid}>
+            <Box key={user.uuid}>
               <UserListItem 
                 user={user} 
                 onClick={onUserClick} 
                 isActive={user.uuid === activeUserUuid} 
+                styleSettings = {index === users.length - 1 ? 'last-item' : index === 0 ? 'first-item' : ''}
               />
-              {index < users.length - 1 && <Divider />}
-            </React.Fragment>
+            </Box>
           ))
         )}
       </List>
-    </Paper>
+    </Box>
   );
 });
 

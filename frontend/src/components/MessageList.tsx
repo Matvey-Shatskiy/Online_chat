@@ -16,15 +16,15 @@ const MessageList: React.FC<MessageListProps> = memo(({ messages, activeUserUuid
 
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ 
+      messagesEndRef.current.scrollIntoView({
         behavior: 'auto',
         block: 'end'
       });
     }
   }, []);
-    useEffect(() => {
+  useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ 
+      messagesEndRef.current.scrollIntoView({
         behavior: 'auto',
         block: 'end'
       });
@@ -34,9 +34,9 @@ const MessageList: React.FC<MessageListProps> = memo(({ messages, activeUserUuid
   const messagesContent = useMemo(() => {
     if (messages.length === 0) {
       return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', backgroundColor: 'white' }}>
           <Typography color="text.secondary">
-            Нет сообщений
+            No messages
           </Typography>
         </Box>
       );
@@ -46,12 +46,10 @@ const MessageList: React.FC<MessageListProps> = memo(({ messages, activeUserUuid
       <List>
         {messages.map((message: Message, index: number) => (
           <React.Fragment key={message.uuid}>
-            <MessageItem 
-              message={message} 
-              isOwner={message.senderUuid === activeUserUuid} 
-              currentChatPartnerImage={currentChatPartner.image || ''}
+            <MessageItem
+              message={message}
+              isOwner={message.senderUuid === activeUserUuid}
             />
-            {index < messages.length - 1 && <Divider variant="inset" component="li" />}
           </React.Fragment>
         ))}
         <div ref={messagesEndRef} />
@@ -60,12 +58,12 @@ const MessageList: React.FC<MessageListProps> = memo(({ messages, activeUserUuid
   }, [messages, activeUserUuid]);
 
   return (
-    <Paper 
+    <Paper
       ref={containerRef}
-      variant="outlined" 
-      sx={{ 
-        height: 300, 
-        overflow: 'auto', 
+      variant="outlined"
+      sx={{
+        height: 800,
+        overflow: 'auto',
         mb: 2,
         p: 2,
         backgroundColor: '#fafafa',
@@ -76,11 +74,11 @@ const MessageList: React.FC<MessageListProps> = memo(({ messages, activeUserUuid
           backgroundColor: '#f1f1f1',
         },
         '&::-webkit-scrollbar-thumb': {
-          backgroundColor: '#888',
+          backgroundColor: '#3c4f6f',
           borderRadius: '4px',
         },
         '&::-webkit-scrollbar-thumb:hover': {
-          backgroundColor: '#555',
+          backgroundColor: '#8aa2c4',
         },
       }}
     >
